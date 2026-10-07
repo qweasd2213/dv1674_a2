@@ -1,0 +1,22 @@
+# Object files
+*.o
+
+# Executables
+
+**/pearson/pearson
+**/pearson/pearson_par
+**/pearson/verify
+**/blur/blur
+**/blur/blur_par
+**/blur/verify
+
+# Optional: common build directories
+build/
+bin/
+
+# Editor/OS junk
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
