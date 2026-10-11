@@ -16,12 +16,11 @@ public:
     Vector(unsigned size, double* data);
     Vector(const Vector& other);
     ~Vector();
-
     double magnitude() const;
     double mean() const;
     double normalize() const;
-    double dot(Vector rhs) const;
-
+    double dot(const Vector& rhs) const;
+    
     unsigned get_size() const;
     double* get_data();
 

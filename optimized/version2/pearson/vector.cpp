@@ -3,10 +3,8 @@ Author: David Holmqvist <daae19@student.bth.se>
 */
 
 #include "vector.hpp"
-#include <iostream>
 #include <cmath>
-#include <vector>
-
+#include <cstring>
 Vector::Vector()
     : size{0}, data{nullptr}
 {
@@ -34,10 +32,9 @@ Vector::Vector(unsigned size, double *data)
 
 Vector::Vector(const Vector &other)
     : Vector{other.size}
-{
-    for (auto i{0}; i < size; i++)
-    {
-        data[i] = other.data[i];
+{ 
+    if (size > 0) {
+        std::memcpy(data, other.data, size * sizeof(double));
     }
 }
 
@@ -97,13 +94,13 @@ Vector Vector::operator-(double sub)
 
     for (auto i{0}; i < size; i++)
     {
-        result[i] -= sub;
+        result[i] = data[i] - sub;
     }
 
     return result;
 }
 
-double Vector::dot(Vector rhs) const
+double Vector::dot(const Vector& rhs) const
 {
     double result{0};
 

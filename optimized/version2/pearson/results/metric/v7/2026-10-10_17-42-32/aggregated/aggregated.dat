@@ -1,0 +1,2 @@
+file threads runs avg_time_ms throughput_MB_s speedup efficiency_percent ipc cycle_per_byte branches branch_misses branch_miss_ratio cache_references cache_misses cache_miss_ratio avg_cpu avg_mem avg_input avg_output
+1024.data 1 1 1360.00 4.63 1.00 100.0 4.18 867.08 3399772685.00 4441143.00 0.0013 66600389.00 606803.00 0.0091 99.00 20436.00 0.00 0.00
