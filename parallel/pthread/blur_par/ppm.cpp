@@ -12,21 +12,14 @@ namespace PPM {
 
 void Reader::fill(std::string filename)
 {
-    std::ifstream f {};
-
-    f.open(filename);
+    std::ifstream f(filename, std::ios::binary);
 
     if (!f) {
         stream.setstate(std::ios::failbit);
         return;
     }
 
-    std::copy(
-        std::istreambuf_iterator<char> { f.rdbuf() },
-        std::istreambuf_iterator<char> {},
-        std::ostreambuf_iterator<char> { stream });
-
-    f.close();
+    stream << f.rdbuf();
 }
 
 std::string Reader::get_magic_number()
@@ -78,25 +71,27 @@ unsigned Reader::get_color_max()
 std::tuple<unsigned char*, unsigned char*, unsigned char*> Reader::get_data(unsigned x_size, unsigned y_size)
 {
     auto size { x_size * y_size };
-    auto R { new char[size] }, G { new char[size] }, B { new char[size] };
+    auto bytes = size * 3;
 
-    for (auto i { 0 }, read { 0 }; i < size; i++, read = 0) {
-        stream.read(R + i, 1);
-        read += stream.gcount();
-        stream.read(G + i, 1);
-        read += stream.gcount();
-        stream.read(B + i, 1);
-        read += stream.gcount();
+    std::vector<unsigned char> raw(bytes);
+    stream.read(reinterpret_cast<char*>(raw.data()), static_cast<std::streamsize>(bytes));
 
-        if (read != 3) {
-            delete[] R;
-            delete[] G;
-            delete[] B;
-            return { nullptr, nullptr, nullptr };
-        }
+    if (static_cast<std::size_t>(stream.gcount()) != bytes) {
+        return { nullptr, nullptr, nullptr };
     }
 
-    return { reinterpret_cast<unsigned char*>(R), reinterpret_cast<unsigned char*>(G), reinterpret_cast<unsigned char*>(B) };
+    auto* R = new unsigned char[size];
+    auto* G = new unsigned char[size];
+    auto* B = new unsigned char[size];
+
+    const unsigned char* src = raw.data();
+    for (std::size_t i = 0; i < size; ++i) {
+        R[i] = src[3*i + 0];
+        G[i] = src[3*i + 1];
+        B[i] = src[3*i + 2];
+    }
+
+    return { R, G, B };
 }
 
 Matrix Reader::operator()(std::string filename)
