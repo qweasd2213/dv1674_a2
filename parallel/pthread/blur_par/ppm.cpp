@@ -152,33 +152,34 @@ void error(std::string op, std::string what)
     std::cerr << "Encountered PPM error during " << op << ": " << what << std::endl;
 }
 
-void Writer::operator()(Matrix m, std::string filename)
+void Writer::operator()(Matrix& m, std::string filename)
 {
     try {
-        std::ofstream f {};
-
-        f.open(filename);
+        std::ofstream f {filename, std::ios::binary};
 
         if (!f) {
             throw std::runtime_error { "failed to open " + filename };
         }
 
         f << magic_number << std::endl;
-
         f << m.get_x_size() << " " << m.get_y_size() << std::endl;
         f << m.get_color_max() << std::endl;
 
         auto size { m.get_x_size() * m.get_y_size() };
-        auto R { m.get_R() }, G { m.get_G() }, B { m.get_B() };
-        auto it_R { R }, it_G { G }, it_B { B };
 
-        while (it_R < R + size && it_G < G + size && it_B < B + size) {
-            f << *it_R++
-              << *it_G++
-              << *it_B++;
+        std::vector<unsigned char> payload(size * 3);
+        const unsigned char* R = m.get_R();
+        const unsigned char* G = m.get_G();
+        const unsigned char* B = m.get_B();
+        for (std::size_t i = 0; i < size; ++i) {
+            payload[3*i + 0] = R[i];
+            payload[3*i + 1] = G[i];
+            payload[3*i + 2] = B[i];
         }
 
-        f.close();
+        f.write(reinterpret_cast<const char*>(payload.data()),
+                static_cast<std::streamsize>(payload.size()));
+
     } catch (std::runtime_error e) {
         error("writing", e.what());
     }

@@ -34,7 +34,7 @@ public:
 
 class Writer {
 public:
-    void operator()(Matrix m, std::string filename);
+    void operator()(Matrix& m, std::string filename);
 };
 
 }
