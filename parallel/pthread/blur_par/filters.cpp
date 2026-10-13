@@ -30,8 +30,8 @@ namespace Filter
         Matrix *dst;
         const double *weights;
         int radius;
-        int startX;
-        int endX;
+        int startY;
+        int endY;
         bool horizontal;
     };
 
@@ -52,9 +52,9 @@ namespace Filter
             const int leftEnd = (radius < width) ? radius : width;
             const int rightStart = (radius > width - radius) ? radius : width - radius;
 
-            for (int x = task->startX; x < task->endX; x++)
+            for (int y = task->startY; y < task->endY; y++)
             {
-                for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
                 {
                     double red = src.r(x, y) * w[0];
                     double green = src.g(x, y) * w[0];
@@ -110,9 +110,9 @@ namespace Filter
             const int bottomStart =
                 (radius > height - radius) ? radius : height - radius;
 
-            for (int x = task->startX; x < task->endX; x++)
-            {
-                for (int y = 0; y < height; y++)
+                for (int y = task->startY; y < task->endY; y++)
+                {
+                    for (int x = 0; x < width; x++)
                 {
                     double red = src.r(x, y) * w[0];
                     double green = src.g(x, y) * w[0];
@@ -166,7 +166,7 @@ namespace Filter
         return nullptr;
     }
 
-    Matrix blur(Matrix m, const int radius, int threads)
+    Matrix blur(Matrix& m, const int radius, int threads)
     {        
         // Calculate weights once instead of 2 times per pixel
         double w[Gauss::max_radius]{};
@@ -181,44 +181,44 @@ namespace Filter
         std::vector<pthread_t> threadIds(threads);
         std::vector<BlurTask> tasks(threads);
 
-        const int columnsPerThread = width / threads;
-        const int remainder = width % threads;
+        const int rowsPerThread = height / threads;
+        const int remainder = height % threads;
 
-        int startX = 0;
+        int startY = 0;
 
         for (int i = 0; i < threads; i++)
         {
-            const int count = columnsPerThread + (i < remainder ? 1 : 0);
+            const int count = rowsPerThread + (i < remainder ? 1 : 0);
 
             tasks[i] = {
                 &m, &scratch, w, radius,
-                startX, startX + count, true
+                startY, startY + count, true
             };
 
             pthread_create(
                 &threadIds[i], nullptr, blur_thread, &tasks[i]);
 
-            startX += count;
+            startY += count;
         }
 
         for (int i = 0; i < threads; i++)
             pthread_join(threadIds[i], nullptr);
 
-        startX = 0;
+        startY = 0;
 
         for (int i = 0; i < threads; i++)
         {
-            const int count = columnsPerThread + (i < remainder ? 1 : 0);
+            const int count = rowsPerThread + (i < remainder ? 1 : 0);
 
             tasks[i] = {
                 &scratch, &m, w, radius,
-                startX, startX + count, false
+                startY, startY + count, false
             };
 
             pthread_create(
                 &threadIds[i], nullptr, blur_thread, &tasks[i]);
 
-            startX += count;
+            startY += count;
         }
 
         for (int i = 0; i < threads; i++)

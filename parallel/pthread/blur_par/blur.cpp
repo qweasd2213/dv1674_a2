@@ -20,7 +20,7 @@ int main(int argc, char const* argv[])
 
     auto m { reader(argv[2]) };
     auto radius { static_cast<unsigned>(std::stoul(argv[1])) };
-    int threads = *argv[4] - '0';
+    int threads = static_cast<unsigned>(std::stoul(argv[4]));
 
     auto blurred { Filter::blur(m, radius, threads) };
     writer(blurred, argv[3]);

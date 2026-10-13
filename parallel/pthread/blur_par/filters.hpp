@@ -19,7 +19,7 @@ namespace Filter
         void get_weights(int n, double *weights_out);
     }
 
-    Matrix blur(Matrix m, const int radius, int threads);
+    Matrix blur(Matrix& m, const int radius, int threads);
 
 }
 

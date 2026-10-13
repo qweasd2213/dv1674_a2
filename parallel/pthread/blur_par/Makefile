@@ -1,7 +1,7 @@
 # Author: David Holmqvist <daae19@student.bth.se>
 
 CXX=g++
-CXXFLAGS=-std=c++17 -g -Wunused -Wall -O3 -pthread -flto=auto
+CXXFLAGS=-std=c++17 -g -Wunused -Wall -O3 -pthread -flto=auto -march=native -funroll-loops
 
 all: blur
 
